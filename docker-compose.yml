@@ -1,0 +1,14 @@
+version: '2'
+services:
+  web:
+    image: janisgarklavs/tournament
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    links:
+      - "db:database"
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: example
