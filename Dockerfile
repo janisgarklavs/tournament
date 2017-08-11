@@ -1,9 +1,21 @@
 FROM golang:1.8
 
-WORKDIR /app
+ARG app_env
+ENV APP_ENV $app_env
+
 ENV SRC_DIR=/go/src/github.com/janisgarklavs/tournament/
 
 ADD . $SRC_DIR
-RUN cd $SRC_DIR; go get;  go build -o app; cp app /app/
+WORKDIR $SRC_DIR
 
-ENTRYPOINT ["./app"]
+RUN go get ./
+RUN go build -o app
+
+CMD if [ ${APP_ENV} = production ]; \
+    then \
+    app; \
+    else \
+    go get github.com/pilu/fresh && \
+    fresh; \
+    fi
+EXPOSE 8080
