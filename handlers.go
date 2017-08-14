@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -32,7 +31,6 @@ func (h *Handlers) takeHandler(w http.ResponseWriter, r *http.Request) {
 	points, err := getPointsFromString(r.Form.Get("points"))
 	if err != nil || playerID == "" || points < 0 {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		log.Println("bad input", playerID, points, err)
 		return
 	}
 
@@ -40,13 +38,11 @@ func (h *Handlers) takeHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		log.Println("did not find player")
 		return
 	}
 
 	if err := h.repo.TakeFunds(player, points); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Println("cannot take enough from player")
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -63,20 +59,17 @@ func (h *Handlers) fundHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil || playerID == "" || points < 0 {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		log.Println("bad input", playerID, points)
 		return
 	}
 
 	player, err := h.repo.FindOrCreatePlayer(playerID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Println("something went wrong on creating player")
 		return
 	}
 
 	if err := h.repo.AddFunds(player, points); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Println("cannot add funds")
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -92,13 +85,11 @@ func (h *Handlers) announceHandler(w http.ResponseWriter, r *http.Request) {
 	deposit, err := getPointsFromString(r.Form.Get("deposit"))
 	if err != nil || tournamentID == "" || deposit <= 0 {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		log.Println("bad input", tournamentID, deposit)
 		return
 	}
 
 	if err := h.repo.CreateTournament(tournamentID, deposit); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		log.Println("cannot create tournament")
 		return
 	}
 	w.WriteHeader(http.StatusOK)

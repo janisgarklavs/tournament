@@ -8,7 +8,7 @@ ENV SRC_DIR=/go/src/github.com/janisgarklavs/tournament/
 ADD . $SRC_DIR
 WORKDIR $SRC_DIR
 
-RUN go get ./
+RUN go get -t 
 RUN go build -o app
 
 CMD if [ ${APP_ENV} = production ]; \
