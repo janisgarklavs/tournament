@@ -50,8 +50,6 @@ func main() {
 	r := chi.NewRouter()
 	h := Handlers{db}
 
-	r.Get("/", h.dumpHandler)
-
 	r.Get("/take", h.takeHandler)
 	r.Get("/fund", h.fundHandler)
 	r.Get("/announceTournament", h.announceHandler)

@@ -45,7 +45,7 @@ resets db
 -no points are lost due to unexpected errors (transactions)
 
 -postgres tables
--all balance and deposits are 2 decimal place floats converted to ints ( balance * 100)
+-all balance and deposits are 2 decimal place floats cocnverted to ints ( balance * 100)
 
 player (id string, balance int) (enforce constraint on balance for positive values)
 tournament (id string unique PK, deposit int, finished bool) (dont accept more joins after finished)
