@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/jmoiron/sqlx"
@@ -137,7 +137,6 @@ func (db *DB) FindTournament(tournamentID string) (*Tournament, error) {
 
 //TournamentJoinPlayers takes tournament and takes points for players and adds them to tournament entries
 func (db *DB) TournamentJoinPlayers(tournament *Tournament, playerID string, backers []string) error {
-	log.Println(tournament.Deposit, len(backers))
 	if len(backers) == 0 {
 		tx := db.MustBegin()
 		var err error
@@ -195,6 +194,7 @@ func (db *DB) TournamentJoinPlayers(tournament *Tournament, playerID string, bac
 //FinishTournament takes tournament and winners, and correspondingly gives out points to winning entries and their backers
 func (db *DB) FinishTournament(tournament *Tournament, winners []Winner) error {
 	tx := db.MustBegin()
+
 	defer tx.Rollback()
 	for _, v := range winners {
 		players, err := db.findPlayersWithBackers(tournament.ID, v.PlayerID)
@@ -224,8 +224,11 @@ func (db *DB) FinishTournament(tournament *Tournament, winners []Winner) error {
 
 func (db *DB) findPlayersWithBackers(tournamentID string, playerID string) ([]string, error) {
 	var players []string
-	if err := db.Select(&players, "SELECT user_id FROM tournament_entries WHERE tournament_id = $1 AND user_id = $2 OR backing_id = $2", tournamentID, playerID); err != nil {
+	if err := db.Select(&players, "SELECT user_id FROM tournament_entries WHERE tournament_id = $1 AND (( user_id = $2 AND backing_id IS NULL ) OR backing_id = $2);", tournamentID, playerID); err != nil {
 		return nil, err
+	}
+	if len(players) == 0 {
+		return nil, errors.New("no players found")
 	}
 	return players, nil
 }
